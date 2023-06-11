@@ -1,6 +1,6 @@
 <template>
-  <div class="login-page" style>
-    <div class="card">
+  <div class="login-page" style="background-color: rgb(80, 83, 80);">
+    <div class="card" style="background-color: rgb(19, 19, 66);">
       <div class="card-content">
         <div class="form-group">
           <label for="username">Usuário:</label>
@@ -17,52 +17,24 @@
         <div class="form-group text-center">
           <div class="space-button"></div>
           <q-btn class="google-login-button" @click="loginWithGoogle">
-            <img src="../assets/google.svg" alt="Google Logo" />
+            <img src="../assets/google.svg" alt="Google Logo">
             Logar com Google
           </q-btn>
         </div>
         <div class="form-group text-center">
           <div class="space-button"></div>
-          <q-btn class="register-button" @click="showRegisterDialog"
-            >Cadastre-se</q-btn
-          >
+          <q-btn class="register-button" @click="showRegisterDialog">Register</q-btn>
         </div>
         <q-dialog v-model="registerDialog" persistent>
           <q-card>
             <q-card-section>
-              <q-input
-                v-model="registerEmail"
-                filled
-                dense
-                outlined
-                label="Email"
-              />
-              <q-input
-                v-model="registerPassword"
-                type="password"
-                filled
-                dense
-                outlined
-                label="Senha"
-                :rules="[passwordRule]"
-                @blur="registerPasswordTouched = true"
-              />
+              <q-input v-model="registerEmail" filled dense outlined label="Email" />
+              <q-input v-model="registerPassword" type="password" filled dense outlined label="Senha" :rules="[passwordRule]" @blur="registerPasswordTouched = true" />
             </q-card-section>
 
             <q-card-actions align="right">
-              <q-btn
-                label="Cancelar"
-                color="primary"
-                flat
-                dense
-                @click="closeRegisterDialog"
-              />
-              <q-btn
-                label="Confirmar"
-                color="primary"
-                dense
-                @click="confirmRegister"
-              />
+              <q-btn label="Cancelar" color="primary" flat dense @click="closeRegisterDialog" />
+              <q-btn label="Confirmar" color="primary" dense @click="confirmRegister" />
             </q-card-actions>
           </q-card>
         </q-dialog>
@@ -72,41 +44,36 @@
 </template>
 
 <script>
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-} from "firebase/auth";
-import auth from "boot/firebase.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import auth from 'boot/firebase.js'
 import { Notify } from "quasar";
 
 export default {
-  name: "LoginPage",
+  name: 'LoginPage',
   data() {
     return {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
       registerDialog: false, // Variável para controlar a exibição do diálogo de registro
-      registerEmail: "", // Variável para armazenar o email digitado no diálogo de registro
-      registerPassword: "", // Variável para armazenar a senha digitada no diálogo de registro
+      registerEmail: '', // Variável para armazenar o email digitado no diálogo de registro
+      registerPassword: '', // Variável para armazenar a senha digitada no diálogo de registro
       registerPasswordTouched: false,
     };
   },
 
   methods: {
+
     passwordRule(value) {
       const rules = [
-        (val) => !!val || "",
-        (val) =>
-          (val && val.length >= 6) || "A senha deve ter no mínimo 6 caracteres",
+        val => !!val || '',
+        val => (val && val.length >= 6) || 'A senha deve ter no mínimo 6 caracteres'
       ];
 
       const errorMessages = {};
 
       rules.forEach((rule, index) => {
         const ruleResult = rule(value);
-        if (typeof ruleResult === "string") {
+        if (typeof ruleResult === 'string') {
           if (this.registerPasswordTouched) {
             errorMessages[index] = ruleResult;
           }
@@ -118,17 +85,13 @@ export default {
 
     async login() {
       try {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          this.username,
-          this.password
-        );
+        const userCredential = await signInWithEmailAndPassword(auth, this.username, this.password);
         // O login foi bem-sucedido, você pode fazer algo com o `userCredential` aqui
-        console.log("Login bem-sucedido:", userCredential.user);
-        this.$router.push("/principal");
+        console.log('Login bem-sucedido:', userCredential.user);
+        this.$router.push('/principal');
       } catch (error) {
         // Ocorreu um erro durante o login, você pode lidar com o erro aqui
-        console.error("Erro durante o login:", error);
+        console.error('Erro durante o login:', error);
       }
     },
 
@@ -138,27 +101,23 @@ export default {
       signInWithPopup(auth, provider)
         .then((userCredential) => {
           // O login com o Google foi bem-sucedido, você pode fazer algo com o `userCredential` aqui
-          console.log("Login com Google bem-sucedido:", userCredential.user);
-          this.$router.push("/principal");
+          console.log('Login com Google bem-sucedido:', userCredential.user);
+          this.$router.push('/principal');
         })
         .catch((error) => {
           // Ocorreu um erro durante o login com o Google, você pode lidar com o erro aqui
-          console.error("Erro durante o login com Google:", error);
+          console.error('Erro durante o login com Google:', error);
         });
     },
 
     async register(email, password) {
       try {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         // O registro foi bem-sucedido, você pode fazer algo com o `userCredential` aqui
-        console.log("Registro bem-sucedido:", userCredential.user);
+        console.log('Registro bem-sucedido:', userCredential.user);
       } catch (error) {
         // Ocorreu um erro durante o registro, você pode lidar com o erro aqui
-        console.error("Erro durante o registro:", error);
+        console.error('Erro durante o registro:', error);
       }
     },
 
@@ -180,31 +139,31 @@ export default {
         if (isValid) {
           await this.register(this.registerEmail, this.registerPassword);
           Notify.create({
-            message: "Registro bem-sucedido!",
-            color: "positive",
-            position: "top",
-            timeout: 2000,
+            message: 'Registro bem-sucedido!',
+            color: 'positive',
+            position: 'top',
+            timeout: 2000
           });
           this.closeRegisterDialog();
         } else {
           const errorMessages = Object.values(validationResult);
           Notify.create({
-            message: errorMessages.join("\n"),
-            color: "negative",
-            position: "top",
-            timeout: 2000,
+            message: errorMessages.join('\n'),
+            color: 'negative',
+            position: 'top',
+            timeout: 2000
           });
         }
       } catch (error) {
-        console.error("Erro durante o registro:", error);
+        console.error('Erro durante o registro:', error);
         Notify.create({
-          message: "Erro durante o registro!",
-          color: "negative",
-          position: "top",
-          timeout: 2000,
+          message: 'Erro durante o registro!',
+          color: 'negative',
+          position: 'top',
+          timeout: 2000
         });
       }
-    },
+    }
   },
 };
 </script>
@@ -215,9 +174,6 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-image: url("https://static.vecteezy.com/ti/vetor-gratis/p3/1254680-conceito-de-fundo-de-cinema-gratis-vetor.jpg"); /* substitua pelo caminho correto da imagem */
-  background-size: cover;
-  background-repeat: no-repeat;
 }
 
 .card {
@@ -225,7 +181,6 @@ export default {
   padding: 20px;
   border-radius: 5px;
   color: white;
-  background-color: rgba(37, 37, 37, 0.6); /* altera a opacidade do fundo */
 }
 
 .form-group {

@@ -4,15 +4,23 @@
       <q-toolbar>
         <q-toolbar-title>
           <q-avatar>
-            <img src="https://images.vexels.com/media/users/3/140256/isolated/preview/8dfa6aefbd0dc3bff61b96d7f2f7ff40-icone-de-tira-de-filme.png">
+            <img
+              src="https://images.vexels.com/media/users/3/140256/isolated/preview/8dfa6aefbd0dc3bff61b96d7f2f7ff40-icone-de-tira-de-filme.png"
+            />
           </q-avatar>
-          MyMovieList
+          Minha Lista de Filmes
         </q-toolbar-title>
         <q-btn class="logout-button" @click="logout">Logout</q-btn>
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" :width="150" bordered>
+    <q-drawer
+      show-if-above
+      v-model="leftDrawerOpen"
+      side="left"
+      :width="150"
+      bordered
+    >
       <q-list>
         <q-item
           v-for="item in menuItems"
@@ -50,14 +58,17 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
-import { signOut } from 'firebase/auth'
-import axios from 'axios'
-import MovieCard from '../components/MovieCard.vue'
-import auth from 'boot/firebase.js'
+import { defineComponent, ref } from "vue";
+import { signOut} from "firebase/auth";
+import axios from "axios";
+import MovieCard from "../components/MovieCard.vue";
+import auth from "boot/firebase.js";
+import { getAuth } from "firebase/auth";
+import { setDoc, getDoc, doc } from "firebase/firestore";
+import { db } from "src/boot/firebase";
 
 export default defineComponent({
-  name: 'IndexPage',
+  name: "IndexPage",
 
   components: {
     MovieCard,
@@ -67,112 +78,173 @@ export default defineComponent({
     return {
       movies: [],
       displayedMovies: [],
-      activeRoute: 'allMovies',
+      activeRoute: "allMovies",
       user: null,
       favoriteMovies: [],
-    }
+    };
   },
 
-  created() {
-    this.fetchMovies()
-    this.getUserData()
-  },
+
 
   setup() {
-    const leftDrawerOpen = ref(false)
+    const leftDrawerOpen = ref(false);
 
     const menuItems = [
-      { title: 'Início', route: 'allMovies' },
-      { title: 'Filmes em cartaz', route: 'nowPlayingMovies' },
-      { title: 'Favoritos', route: 'favorites' },
-    ]
+      { title: "Início", route: "allMovies" },
+      { title: "Filmes em cartaz", route: "nowPlayingMovies" },
+      { title: "Favoritos", route: "favorites" },
+    ];
 
     return {
       leftDrawerOpen,
       menuItems,
-    }
+    };
+  },
+
+  mounted() {
+    this.fetchMovies();
+    this.getUserData();
   },
 
   methods: {
     navigate(route) {
       this.activeRoute = route;
       switch (route) {
-        case 'allMovies':
+        case "allMovies":
           this.displayedMovies = this.movies;
           break;
-        case 'nowPlayingMovies':
+        case "nowPlayingMovies":
           this.fetchNowPlayingMovies();
           break;
-        case 'favorites':
-          this.displayedMovies = this.favoriteMovies;
+        case "favorites":
+          this.displayedMovies = this.movies.filter((movie) =>
+            this.favoriteMovies.includes(movie.id)
+          );
           break;
       }
     },
 
     logout() {
+      // Remover as informações do usuário atual do localStorage
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        localStorage.removeItem(`favoriteMovies_${currentUser.uid}`);
+      }
+
       signOut(auth)
         .then(() => {
           // Logout bem-sucedido, redirecionar para a tela de login
-          this.$router.push('/')
+          this.$router.push("/");
         })
         .catch((error) => {
-          console.error('Erro durante o logout:', error)
-        })
+          console.error("Erro durante o logout:", error);
+        });
     },
 
     fetchMovies() {
       // Faça a solicitação HTTP para a API do TMDB para buscar todos os filmes disponíveis
-      const apiKey = '91cefdafa16990647ed1774347616e57'
-      const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`
+      const apiKey = "91cefdafa16990647ed1774347616e57";
+      const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`;
 
       axios
         .get(url)
         .then((response) => {
-          this.movies = response.data.results
-          this.displayedMovies = this.movies
+          this.movies = response.data.results;
+          this.displayedMovies = this.movies;
         })
         .catch((error) => {
-          console.error('Erro ao buscar filmes:', error)
-        })
+          console.error("Erro ao buscar filmes:", error);
+        });
     },
 
     fetchNowPlayingMovies() {
       // Faça a solicitação HTTP para a API do TMDB para buscar os filmes em cartaz
-      const apiKey = '91cefdafa16990647ed1774347616e57'
-      const url = `https://api.themoviedb.org/3/movie/now_playing?api_key=${apiKey}`
+      const apiKey = "91cefdafa16990647ed1774347616e57";
+      const url = `https://api.themoviedb.org/3/movie/now_playing?api_key=${apiKey}`;
 
       axios
         .get(url)
         .then((response) => {
-          this.displayedMovies = response.data.results
+          this.displayedMovies = response.data.results;
         })
         .catch((error) => {
-          console.error('Erro ao buscar filmes em cartaz:', error)
-        })
+          console.error("Erro ao buscar filmes em cartaz:", error);
+        });
     },
 
     getUserData() {
-      if (auth.currentUser) {
-        const userId = auth.currentUser.uid
-        // Aqui você pode adicionar a lógica para buscar os dados do usuário do Firebase
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+
+      if (currentUser) {
+        const userId = currentUser.uid;
+        const userRef = doc(db, "users", userId);
+
+        // Use o Firestore para buscar os dados do usuário
+        getDoc(userRef)
+          .then((docSnapshot) => {
+            if (docSnapshot.exists()) {
+              const userData = docSnapshot.data();
+              this.favoriteMovies = userData.favoriteMovies || [];
+            }
+          })
+          .catch((error) => {
+            console.error("Erro ao buscar dados do usuário:", error);
+          });
       }
     },
 
+
     isMovieFavorite(movieId) {
-      return this.favoriteMovies.includes(movieId)
+      return this.favoriteMovies.includes(movieId);
     },
 
     toggleFavorite(movieId) {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+
       if (this.isMovieFavorite(movieId)) {
-        this.favoriteMovies = this.favoriteMovies.filter(id => id !== movieId)
+        this.favoriteMovies = this.favoriteMovies.filter((id) => id !== movieId);
       } else {
-        this.favoriteMovies.push(movieId)
+        this.favoriteMovies.push(movieId);
       }
 
-      // Aqui você pode adicionar a lógica para atualizar os dados do usuário no Firebase
+      // Atualizar as informações de filmes favoritos no Firestore
+      if (currentUser) {
+        const userId = currentUser.uid;
+        const userRef = doc(db, "users", userId);
+
+        // Verificar se o documento com o ID do usuário existe
+        getDoc(userRef)
+          .then((docSnapshot) => {
+            if (docSnapshot.exists()) {
+              // Documento existe, atualize-o com os filmes favoritos
+              setDoc(userRef, { favoriteMovies: this.favoriteMovies }, { merge: true })
+                .then(() => {
+                  console.log("Dados de filmes favoritos atualizados com sucesso");
+                })
+                .catch((error) => {
+                  console.error("Erro ao atualizar dados de filmes favoritos:", error);
+                });
+            } else {
+              // Documento não existe, crie um novo documento com o nome do ID do usuário
+              setDoc(userRef, { id: userId, favoriteMovies: this.favoriteMovies })
+                .then(() => {
+                  console.log("Novo documento de usuário criado com sucesso");
+                })
+                .catch((error) => {
+                  console.error("Erro ao criar novo documento de usuário:", error);
+                });
+            }
+          })
+          .catch((error) => {
+            console.error("Erro ao buscar dados do usuário:", error);
+          });
+      }
     },
+
   },
-})
+});
 </script>
 
 <style scoped>
@@ -186,7 +258,7 @@ export default defineComponent({
 }
 
 .q-item.active {
-  background-color: #f0f0f0;
+  background-color: grey;
 }
 
 .q-row.movie-cards {
