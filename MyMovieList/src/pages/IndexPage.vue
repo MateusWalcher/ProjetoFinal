@@ -144,7 +144,7 @@ export default defineComponent({
     fetchMovies() {
       // Faça a solicitação HTTP para a API do TMDB para buscar todos os filmes disponíveis
       const apiKey = "91cefdafa16990647ed1774347616e57";
-      const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`;
+      const url = `https://api.themoviedb.org/3/movie/top_rated?api_key=${apiKey}&language=pt-BR`;
 
       axios
         .get(url)
@@ -160,7 +160,7 @@ export default defineComponent({
     fetchNowPlayingMovies() {
       // Faça a solicitação HTTP para a API do TMDB para buscar os filmes em cartaz
       const apiKey = "91cefdafa16990647ed1774347616e57";
-      const url = `https://api.themoviedb.org/3/movie/now_playing?api_key=${apiKey}`;
+      const url = `https://api.themoviedb.org/3/movie/now_playing?api_key=${apiKey}&language=pt-BR`;
 
       axios
         .get(url)
