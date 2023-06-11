@@ -123,11 +123,11 @@ export default {
           this.username,
           this.password
         );
-        // O login foi bem-sucedido, você pode fazer algo com o `userCredential` aqui
+
         console.log("Login bem-sucedido:", userCredential.user);
         this.$router.push("/principal");
       } catch (error) {
-        // Ocorreu um erro durante o login, você pode lidar com o erro aqui
+
         console.error("Erro durante o login:", error);
       }
     },
@@ -137,12 +137,12 @@ export default {
 
       signInWithPopup(auth, provider)
         .then((userCredential) => {
-          // O login com o Google foi bem-sucedido, você pode fazer algo com o `userCredential` aqui
+
           console.log("Login com Google bem-sucedido:", userCredential.user);
           this.$router.push("/principal");
         })
         .catch((error) => {
-          // Ocorreu um erro durante o login com o Google, você pode lidar com o erro aqui
+
           console.error("Erro durante o login com Google:", error);
         });
     },
@@ -154,20 +154,20 @@ export default {
           email,
           password
         );
-        // O registro foi bem-sucedido, você pode fazer algo com o `userCredential` aqui
+
         console.log("Registro bem-sucedido:", userCredential.user);
       } catch (error) {
-        // Ocorreu um erro durante o registro, você pode lidar com o erro aqui
+
         console.error("Erro durante o registro:", error);
       }
     },
 
     showRegisterDialog() {
-      this.registerDialog = true; // Abre o diálogo de registro
+      this.registerDialog = true;
     },
 
     closeRegisterDialog() {
-      this.registerDialog = false; // Fecha o diálogo de registro
+      this.registerDialog = false;
     },
 
     async confirmRegister() {
@@ -225,7 +225,7 @@ export default {
   padding: 20px;
   border-radius: 5px;
   color: white;
-  background-color: rgba(37, 37, 37, 0.6); /* altera a opacidade do fundo */
+  background-color: rgba(37, 37, 37, 0.6);
 }
 
 .form-group {
