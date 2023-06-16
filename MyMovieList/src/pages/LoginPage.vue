@@ -224,7 +224,7 @@ export default {
   width: 300px;
   padding: 20px;
   border-radius: 5px;
-  color: white;
+  color: rgb(255, 255, 255);
   background-color: rgba(15, 15, 15, 0.8);
 }
 
@@ -239,7 +239,6 @@ label {
 }
 
 .q-field {
-  background-color: white;
   color: black;
 }
 
