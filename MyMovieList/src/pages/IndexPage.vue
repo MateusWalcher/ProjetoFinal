@@ -10,7 +10,7 @@
           </q-avatar>
           Minha Lista de Filmes
         </q-toolbar-title>
-        <q-btn class="logout-button" @click="logout">Logout</q-btn>
+        <q-btn class="logout-button primary" @click="logout">Logout</q-btn>
       </q-toolbar>
     </q-header>
 
@@ -102,6 +102,16 @@ export default defineComponent({
   },
 
   mounted() {
+  const favoriteMovies = localStorage.getItem("favoriteMovies");
+  if (favoriteMovies) {
+    this.favoriteMovies = JSON.parse(favoriteMovies);
+  }
+
+  this.fetchMovies();
+  this.getUserData();
+},
+
+  beforeMount() {
     this.fetchMovies();
     this.getUserData();
   },
@@ -180,6 +190,13 @@ export default defineComponent({
             if (docSnapshot.exists()) {
               const userData = docSnapshot.data();
               this.favoriteMovies = userData.favoriteMovies || [];
+
+                // Atualize os filmes exibidos com base nos filmes favoritos
+                this.updateDisplayedMovies();
+
+                // Armazene os filmes favoritos no armazenamento local
+                 localStorage.setItem("favoriteMovies", JSON.stringify(this.favoriteMovies));
+
             }
           })
           .catch((error) => {
@@ -188,6 +205,21 @@ export default defineComponent({
       }
     },
 
+    updateDisplayedMovies() {
+  switch (this.activeRoute) {
+    case "allMovies":
+      this.displayedMovies = this.movies;
+      break;
+    case "nowPlayingMovies":
+      this.fetchNowPlayingMovies();
+      break;
+    case "favorites":
+      this.displayedMovies = this.movies.filter((movie) =>
+        this.favoriteMovies.includes(movie.id)
+      );
+      break;
+  }
+},
 
     isMovieFavorite(movieId) {
       return this.favoriteMovies.includes(movieId);
@@ -202,6 +234,8 @@ export default defineComponent({
       } else {
         this.favoriteMovies.push(movieId);
       }
+
+      localStorage.setItem("favoriteMovies", JSON.stringify(this.favoriteMovies));
 
       // Atualizar as informações de filmes favoritos no Firestore
       if (currentUser) {
@@ -241,18 +275,17 @@ export default defineComponent({
 });
 </script>
 
+
 <style scoped>
-.logout-button {
-  margin-left: auto;
+.logout-button.primary {
+  background-color: #b41212;
 }
 
 .q-page-container {
   height: calc(100vh - 64px);
   overflow-y: auto;
-}
-
-.q-item.active {
-  background-color: grey;
+  background-color: black;
+  color: white;
 }
 
 .q-row.movie-cards {
@@ -264,4 +297,5 @@ export default defineComponent({
   flex: 0 0 25%;
   max-width: 25%;
 }
+
 </style>

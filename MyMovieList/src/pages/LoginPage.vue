@@ -1,5 +1,5 @@
 <template>
-  <div class="login-page" style>
+  <div class="login-page">
     <div class="card">
       <div class="card-content">
         <div class="form-group">
@@ -9,20 +9,17 @@
         <div class="form-group">
           <label for="password">Senha:</label>
           <q-input v-model="password" type="password" filled dense outlined />
-          <div class="space"></div>
         </div>
         <div class="form-group text-center">
           <q-btn class="login-button" @click="login">Login</q-btn>
         </div>
         <div class="form-group text-center">
-          <div class="space-button"></div>
           <q-btn class="google-login-button" @click="loginWithGoogle">
             <img src="../assets/google.svg" alt="Google Logo" />
             Logar com Google
           </q-btn>
         </div>
         <div class="form-group text-center">
-          <div class="space-button"></div>
           <q-btn class="register-button" @click="showRegisterDialog"
             >Cadastre-se</q-btn
           >
@@ -48,7 +45,6 @@
                 @blur="registerPasswordTouched = true"
               />
             </q-card-section>
-
             <q-card-actions align="right">
               <q-btn
                 label="Cancelar"
@@ -87,13 +83,12 @@ export default {
     return {
       username: "",
       password: "",
-      registerDialog: false, // Variável para controlar a exibição do diálogo de registro
-      registerEmail: "", // Variável para armazenar o email digitado no diálogo de registro
-      registerPassword: "", // Variável para armazenar a senha digitada no diálogo de registro
+      registerDialog: false,
+      registerEmail: "",
+      registerPassword: "",
       registerPasswordTouched: false,
     };
   },
-
   methods: {
     passwordRule(value) {
       const rules = [
@@ -115,7 +110,6 @@ export default {
 
       return errorMessages;
     },
-
     async login() {
       try {
         const userCredential = await signInWithEmailAndPassword(
@@ -123,30 +117,35 @@ export default {
           this.username,
           this.password
         );
-
         console.log("Login bem-sucedido:", userCredential.user);
         this.$router.push("/principal");
       } catch (error) {
-
         console.error("Erro durante o login:", error);
+        Notify.create({
+          message: "Erro durante o login!",
+          color: "negative",
+          position: "top",
+          timeout: 2000,
+        });
       }
     },
-
     loginWithGoogle() {
       const provider = new GoogleAuthProvider();
-
       signInWithPopup(auth, provider)
         .then((userCredential) => {
-
           console.log("Login com Google bem-sucedido:", userCredential.user);
           this.$router.push("/principal");
         })
         .catch((error) => {
-
           console.error("Erro durante o login com Google:", error);
+          Notify.create({
+            message: "Erro durante o login com Google!",
+            color: "negative",
+            position: "top",
+            timeout: 2000,
+          });
         });
     },
-
     async register(email, password) {
       try {
         const userCredential = await createUserWithEmailAndPassword(
@@ -154,22 +153,23 @@ export default {
           email,
           password
         );
-
         console.log("Registro bem-sucedido:", userCredential.user);
       } catch (error) {
-
         console.error("Erro durante o registro:", error);
+        Notify.create({
+          message: "Erro durante o registro!",
+          color: "negative",
+          position: "top",
+          timeout: 2000,
+        });
       }
     },
-
     showRegisterDialog() {
       this.registerDialog = true;
     },
-
     closeRegisterDialog() {
       this.registerDialog = false;
     },
-
     async confirmRegister() {
       try {
         this.registerPasswordTouched = true;
@@ -215,7 +215,7 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-image: url("https://static.vecteezy.com/ti/vetor-gratis/p3/1254680-conceito-de-fundo-de-cinema-gratis-vetor.jpg"); /* substitua pelo caminho correto da imagem */
+  background-image: url("https://wallpaper.dog/large/20493433.jpg");
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -225,16 +225,17 @@ export default {
   padding: 20px;
   border-radius: 5px;
   color: white;
-  background-color: rgba(37, 37, 37, 0.6);
+  background-color: rgba(15, 15, 15, 0.8);
 }
 
 .form-group {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
 .q-field {
@@ -245,12 +246,12 @@ label {
 .login-button,
 .register-button,
 .google-login-button {
-  width: 75%;
+  width: 100%;
   padding: 10px;
   border: none;
   border-radius: 20px;
   color: white;
-  background-color: #333;
+  background-color: #000000;
   cursor: pointer;
 }
 
@@ -259,7 +260,7 @@ label {
 }
 
 .google-login-button {
-  margin-left: 30px;
+  margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -272,7 +273,7 @@ label {
 }
 
 .space {
-  height: 30px;
+  height: 10px;
 }
 
 .space-button {
